@@ -162,7 +162,7 @@ if __name__=="__main__":
     results = [f"dDiv/dW_{i+1}  : {ddiv_dws[i]:.4g}"
                for i in range(len(ddiv_dws))]
     print("\n".join(results))
-    print("\n --( Loss gradient wrt layerwise inputs )-- \n")
+    print("\n --( Loss gradient wrt inputs )-- \n")
     ddiv_dws = (*ddiv_dw_l1, *ddiv_dw_l2, *ddiv_dw_l3)
     results = [f"dDiv/dX_{i+1}  : {ddiv_dxs[i]:.4g}"
                for i in range(len(ddiv_dxs))]
