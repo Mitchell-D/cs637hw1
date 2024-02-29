@@ -28,6 +28,6 @@ x4
 
 To evaluate the gradients of the loss function in terms of the
 weights and inputs provided in the assignment, just run this script
-directly using the values hard-coded in the __main__ context below.
+directly using the values hard-coded in the `__main__` context.
 Otherwise modify the T (truth) W (weights) and/or X (inputs) values
-below to change the structure.
+to change the structure.
