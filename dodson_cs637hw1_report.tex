@@ -1,0 +1,192 @@
+% Questions on PDF page 134
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{enumerate}
+\usepackage{physics}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\usepackage{textcomp}
+\usepackage{hyperref}
+
+\bibliographystyle{ieeetr}
+\graphicspath{{./figures}}
+
+\title{Deep Learning (CS 637) Homework 1}
+\author{Mitchell Dodson}
+\date{February 28, 2024}
+
+\newcommand*{\problem}[2]{
+    \begin{table}[ht]
+    \centering
+        \begin{tabular}{ | p{.1\linewidth} p{.9\linewidth} | }
+            \hline
+            \vspace{.3em}\textbf{\large#1:} & \vspace{.3em}\small{#2}\hspace{.2em}\vspace{.5em} \\ \hline
+        \end{tabular}
+    \end{table}
+}
+
+\begin{document}
+
+\noindent
+{\Large\textbf{Deep Learning (CS 637) Homework 1}}
+
+\noindent
+\large{Mitchell Dodson}
+
+\noindent
+\large{February 28, 2024}
+
+
+\problem{1}{Consider the model $y=w_0 + w_1 x_1 + w_2 x_2 + w_3 x_1^2$. Calculate the gradient with respect to $\vec{w}$, and write down a gradient descent update rule for $\vec{w}$ with respect to $\grad_{\vec{w}}\, y$.}
+
+The gradient of $y$ with respect to weight vector $\vec{w} := <w_1, w_2, w_3, w_4>$ is written...
+
+\begin{equation}
+    \begin{split}
+        \grad_{\vec{w}} \, y &= \left<\frac{\partial y}{\partial w_1},\, \frac{\partial y}{\partial w_2},\, \frac{\partial y}{\partial w_3},\, \frac{\partial y}{\partial w_4}\right> \\
+        &= \left< 1,\, x_1,\, x_2,\, x_1^2 \right> \\
+    \end{split}
+\end{equation}
+
+In general, a gradient update step for parameter $w$ is written $w' = w - \eta \frac{\partial \text{Loss}}{\partial w}$ so that the magnitude of the parameter's change is directionally opposite and proportional to the loss gradient with respect to it. In this case, the weight update in terms of the model's gradient evaluated for a single sample is as follows...
+
+\begin{equation}
+        \vec{w}' = \vec{w} - \eta \grad_{\vec{w}} \, y = \left< (w_0 - \eta) ,\, (w_1 - \eta x_1) ,\, (w_2 - \eta x_2) ,\, (w_3 - \eta x_1^2) \right>
+\end{equation}
+
+\problem{2}{Implement backpropagation by hand for the simple network, showing all the intermediate steps and calculations towards the computation of the solution.}
+
+\noindent
+\textbf{Terms}
+
+\begin{equation}
+    \sigma(x) := \frac{1}{1+e^{-x}}
+\end{equation}
+
+\begin{equation}
+    \text{Div}(\hat{y}, y) := |\hat{y} - y|^2
+\end{equation}
+
+\begin{equation}
+    y = 0.5
+\end{equation}
+
+\begin{equation}
+    \vec{x} = \left<-0.7,\, 1.2,\, 1.1,\, -2\right>
+\end{equation}
+
+\begin{equation}
+    \vec{w} = \left< -1.7 ,\, 0.1 ,\, -0.6 ,\, -1.8 ,\, -0.2 ,\, 0.5 \right>
+\end{equation}
+
+\noindent
+\textbf{Forward Pass}
+
+\begin{equation}
+    \begin{split}
+        h_1 &= \sigma(x_1 w_1 + x_2 w_2) \\
+        &= \sigma(-0.7 \cdot -1.7 + 1.2 \cdot 0.1) \\
+        &= \sigma(1.31) = 0.78751 \\
+    \end{split}
+\end{equation}
+
+\begin{equation}
+    \begin{split}
+        h_2 &= \sigma(x_3 w_3 + x_4 w_4) \\
+        &= \sigma(1.1 \cdot -0.6 + -2 \cdot -1.8) \\
+        &= \sigma(2.94) = 0.9498 \\
+    \end{split}
+\end{equation}
+
+\begin{equation}
+    \begin{split}
+        \hat{y}&= \sigma(h_1 w_5 + h_2 w_6) \\
+        &= \sigma(0.78751 \cdot -0.2 + 0.9498 \cdot 0.5) \\
+        &= \sigma(0.317) = 0.57869
+    \end{split}
+\end{equation}
+
+\begin{equation}
+    \begin{split}
+        \text{Div}(y,\hat{y}) &= |y - \hat{y}|^2 \\
+        &= |0.5-0.57869|^2 = 0.006192 \\
+    \end{split}
+\end{equation}
+
+\noindent
+\textbf{Backward Pass}
+
+\begin{equation}
+    \grad_{\hat{y}} \text{Div} = 2 \, |\hat{y} - y| = 2 \, |0.5-0.57869| = 0.15738
+\end{equation}
+
+\begin{equation}
+    \begin{split}
+        \grad_{s_3} \text{Div}
+        &= \grad_{\hat{y}}\text{Div} \cdot \grad_{s_3} \hat{y} \\
+        &= \grad_{\hat{y}}\text{Div} \cdot \frac{\partial}{\partial s_3} \sigma(s_3) \\
+        &= \grad_{\hat{y}}\text{Div} \cdot \sigma(s_3)(1-\sigma(s_3)) \\
+        &= 0.15738 \cdot 0.57869 (1-0.57869) \\
+        &= 0.03837
+    \end{split}
+\end{equation}
+
+\begin{equation}
+    \begin{split}
+        \grad_{h_1}\text{Div}
+        &= \grad_{s_3}\text{Div} \cdot \grad_{h_1} s_3 \\
+        &= \grad_{s_3}\text{Div} \cdot \frac{\partial}{\partial h_1} (h_1 w_5 + h_2 w_6) \\
+        &= \grad_{s_3}\text{Div} \cdot w_5 \\
+        &= 0.03837 \cdot -0.2 \\
+        &= -0.007674
+    \end{split}
+\end{equation}
+
+\begin{equation}
+    \begin{split}
+        \grad_{s_1}\text{Div}
+        &= \grad_{h_1}\text{Div} \cdot \grad_{s_1}h_1 \\
+        &= \grad_{h_1}\text{Div} \cdot \frac{\partial}{\partial s_1} \sigma(s_1) \\
+        &= \grad_{h_1}\text{Div} \cdot \sigma(s_1)(1-\sigma(s_1)) \\
+        &= -0.007674 \cdot 0.78751(1-0.78751) \\
+        &= -0.001284
+    \end{split}
+\end{equation}
+
+\begin{equation}
+    \begin{split}
+        \grad_{w_1}\text{Div}
+        &= \grad_{s_1}\text{Div} \cdot \grad_{w_1} s_1 \\
+        &= \grad_{s_1}\text{Div} \cdot \frac{\partial}{\partial w_1} (x_1 w_1 + x_2 w_2) \\
+        &= \grad_{s_1}\text{Div} \cdot x_1 \\
+        &= -0.001284 \cdot -0.7 \\
+        &= 0.0008989 \\
+    \end{split}
+\end{equation}
+
+The partial derivative of the divergence function with respect to $w_1$ given the sample is $\frac{\partial \text{Div}}{\partial w_1} = 0.0008989$.
+
+
+\problem{3}{Write a program implementing backpropagation on the neural network, and report the partial derivatives of the divergence with respect to all of the weights.}
+
+
+\vspace{1em}
+\centering\large
+\textbf{All of my code for this assignment is available on github at:}
+
+\centering\large
+\url{https://github.com/Mitchell-D/cs637hw1}
+
+\end{document}
+
+\begin{figure}[h!]\label{q1q2}
+    \centering
+    \begin{tabular}{ c c c | c}
+    \end{tabular}
+\end{figure}
+
